@@ -16,7 +16,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     newrepo = event.data["repository"]["name"]
     branch = event.data["repository"]["default_branch"]
     owner = event.data["sender"]["login"]
-    url = f'https://api.github.com/repos/{ownder}/{newrepo}/branches/{branch}/protection'
+    url = f'https://api.github.com/repos/{owner}/{newrepo}/branches/{branch}/protection'
     print(url)
     #add master branch protections
     await gh.post(url,
