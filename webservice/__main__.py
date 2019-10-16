@@ -15,10 +15,11 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     # get new repository name
     newrepo = event.data["repository"]["name"]
     branch = event.data["repository"]["default_branch"]
-    endpoint = f'/repos/seancustodio/{newrepo}/branches/{branch}/protection'
-    print(endpoint)
+    owner = event.data["sender"]["login"]
+    url = f'https://api.github.com/repos/{ownder}/{newrepo}/branches/{branch}/protection'
+    print(url)
     #add master branch protections
-    await gh.post(endpoint,
+    await gh.post(url,
              data={
              	# required status checks to pass before merging
 		"required_status_checks": {},
