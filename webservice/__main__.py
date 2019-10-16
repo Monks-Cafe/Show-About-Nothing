@@ -17,8 +17,9 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     branch = event.data["repository"]["default_branch"]
     full_url = f'{url}/branches/{branch}/protection'
     print(full_url)
+    header = create_headers("application/vnd.github.luke-cage-preview+json", accept)
     #add master branch protections
-    await gh.put(full_url,
+    await gh.put(full_url, headers=header,
       	    data={
              	# required status checks to pass before merging
 		"required_status_checks": {
