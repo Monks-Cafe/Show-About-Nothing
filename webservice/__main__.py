@@ -23,7 +23,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     time.sleep(.75)
     # necessary Accept header to use API during dev preview period
     accept = "application/vnd.github.luke-cage-preview+json"
-    #add master branch protections
+    # add master branch protections on repo creation
     await gh.put(full_url,
       	    data={
              	# required status checks to pass before merging
@@ -40,7 +40,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
       			"users": [],
       			"teams": []
     		    },
-		    # dismiss approving reviews when someone pushes new commit
+		    # dismiss approval reviews when someone pushes new commit
 		    "dismiss_stale_reviews": False,
 		    # pull requests held until code owner approves
 		    "require_code_owner_reviews": True,
@@ -56,12 +56,19 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 	    }, accept=accept)
     # url needed for POST to create issue
     issue_url = f'{url}/issues'
-    # username for mention
-    username = event.data["sender"]["login"]
+    # coroutine to create new issue
     await gh.post(issue_url,
               data={
-                  'title': '**New Branch Protections Added**',
-                  'body': '@{username}, the following protections were added to the {branch} branch.  <List permissions here>',
+                  'title': 'New Branch Protections Added',
+                  'body': '**@seancustodio**, the following protections were added to the master branch:
+		           | **Permission** | **Value** |
+		           | Required status checks| None |
+		           | Enforce restrictions for administrators | Yes |
+		           | Required pull request reviews | 1 |
+		           | Users that can dismiss Pull requests | None |
+		           | Dismiss Pull request approvals after new committ | No |
+		           | Require code owner review | Yes |
+		           | Restrict who can push to branch | No|',
               })
 
 @routes.post("/")
