@@ -60,7 +60,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     await gh.post(issue_url,
               data={
                   'title': 'New Branch Protections Added',
-                  'body': '**@seancustodio**, the following protections were added to the master branch:           
+                  'body': '**@seancustodio**, the following protections were added to the master branch:'           
               })
 
 @routes.post("/")
