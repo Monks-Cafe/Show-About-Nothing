@@ -63,14 +63,14 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     await gh.post(issue_url,
               data={
                   'title': 'New Branch Protections Added',
-                  'body': '**@seancustodio**, the following protections were added to the master branch:<br><br> 
-		  	   * Required status checks: `None`<br>
-		           * Enforce restrictions for administrators: `Yes`<br>
-		           * Required pull request reviews: `1`<br>
-		           * Users that can dismiss Pull requests: `None`<br>
-		           * Dismiss Pull request approvals after new committ: `No`<br>
-		           * Require code owner review: `Yes`<br>
-		           * Restrict who can push to branch: `No`,'           
+                  'body': '**@seancustodio**, the following protections were added to the master branch:<br/><br/> 
+		  	   * Required status checks: `None`<br/>
+		           * Enforce restrictions for administrators: `Yes`<br/>
+		           * Required pull request reviews: `1`<br/>
+		           * Users that can dismiss Pull requests: `None`<br/>
+		           * Dismiss Pull request approvals after new committ: `No`<br/>
+		           * Require code owner review: `Yes`<br/>
+		           * Restrict who can push to branch: `No`'           
               })
 
 @routes.post("/")
