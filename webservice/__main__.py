@@ -1,5 +1,6 @@
 import os
 import aiohttp
+import time
 
 from aiohttp import web
 from gidgethub import routing, sansio
@@ -13,32 +14,42 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     """ Whenever a repository is created, automate the protection of the master branch"""
 
     # get new repository name
-    newrepo = event.data["repository"]["name"]
+    url = event.data["repository"]["url"]
     branch = event.data["repository"]["default_branch"]
-    owner = event.data["repository"]["owner"]["login"]
-    endpoint = f'/repos/{owner}/{newrepo}/branches/{branch}/protection'
-    print(endpoint)
+    full_url = f'{url}/branches/{branch}/protection'
+    time.sleep(.75)
+    accept = "application/vnd.github.luke-cage-preview+json"
     #add master branch protections
-    await gh.post(endpoint,
-             data={
+    await gh.put(full_url,
+      	    data={
              	# required status checks to pass before merging
-		"required_status_checks": {},
+		"required_status_checks": {
+    		    "strict": False,
+    	     	    "contexts": []
+  		},
 		# enforce protections for administrators
 		"enforce_admins": True,
 		# require one approving review for pull request
 		"required_pull_request_reviews": {
-		# specify which users can dismiss pull requests
-		"dismissal_restrictions": {},
-		# dismiss approving reviews when someone pushes new commit
-		"dismiss_stale_reviews": False,
-		# pull requests held until code owner approves
-		"require_code_owner_reviews": True,
-		# one reviewer required to approve pull request
-		"required_approving_review_count": 1
+		    # specify which users can dismiss pull requests
+		    "dismissal_restrictions": {
+      			"users": [],
+      			"teams": []
+    		    },
+		    # dismiss approving reviews when someone pushes new commit
+		    "dismiss_stale_reviews": False,
+		    # pull requests held until code owner approves
+		    "require_code_owner_reviews": True,
+		    # one reviewer required to approve pull request
+		    "required_approving_review_count": 1
 		},
 		# restrict who can push to branch
-		"restrictions": {}
-		})
+		"restrictions": {
+    		    "users": [],
+    		    "teams": [],
+    		    "apps": []
+  		}
+	    }, accept=accept)
 
 @routes.post("/")
 async def main(request):
