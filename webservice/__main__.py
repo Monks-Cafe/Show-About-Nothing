@@ -15,9 +15,13 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 
     # get new repository name
     url = event.data["repository"]["url"]
+    # get default branch name
     branch = event.data["repository"]["default_branch"]
+    # build url needed to add protections
     full_url = f'{url}/branches/{branch}/protection'
+    # added as a temporary fix for race condition
     time.sleep(.75)
+    # necessary Accept header to use API during dev preview period
     accept = "application/vnd.github.luke-cage-preview+json"
     #add master branch protections
     await gh.put(full_url,
@@ -50,6 +54,15 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     		    "apps": []
   		}
 	    }, accept=accept)
+    # url needed for POST to create issue
+    issue_url = f'{url}/issues'
+    # username for mention
+    username = event.data["sender"]["login"]
+    await gh.post(issue_url,
+              data={
+                  'title': '**New Branch Protections Added**',
+                  'body': '@{username}, the following protections were added to the {branch} branch.  <List permissions here>',
+              })
 
 @routes.post("/")
 async def main(request):
