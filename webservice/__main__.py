@@ -18,7 +18,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     full_url = f'{url}/branches/{branch}/protection'
     print(full_url)
     #add master branch protections
-    await gh.post(full_url,
+    await gh.put(full_url,
       	    data={
              	# required status checks to pass before merging
 		"required_status_checks": {
