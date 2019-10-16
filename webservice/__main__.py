@@ -16,7 +16,8 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 
     # get new repository name
     newrepo = event.data["repository"]["name"]
-    endpoint = f'/repos/seancustodio/{newrepo}/branches/master/protection'
+    branch = event.data["repository"]["default_branch"]
+    endpoint = f'/repos/seancustodio/{newrepo}/branches/{branch}/protection'
     #add master branch protections
     await gh.post(endpoint,
              data={
