@@ -13,10 +13,8 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     """ Whenever a repository is created, automate the protection of the master branch"""
 
     # get new repository name
-    newrepo = event.data["repository"]["name"]
-    branch = event.data["repository"]["default_branch"]
-    owner = event.data["repository"]["owner"]["login"]
-    url = f'https://api.github.com/repos/{owner}/{newrepo}/branches/{branch}/protection'
+    branch = event.data["branches_url"]
+    url = f'{branch}/protection'
     print(url)
     #add master branch protections
     await gh.post(url,
