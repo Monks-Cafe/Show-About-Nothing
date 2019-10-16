@@ -19,25 +19,25 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     endpoint = f'/repos/seancustodio/{newrepo}/branches/master/protection'
     #add master branch protections
     await gh.post(endpoint,
-              data={
-              	  # required status checks to pass before merging
-				  "required_status_checks": {},
-				  # enforce protections for administrators
-				  "enforce_admins": true,
-				  # require one approving review for pull request
-				  "required_pull_request_reviews": {
-				  	# specify which users can dismiss pull requests
-				    "dismissal_restrictions": {},
-				    # dismiss approving reviews when someone pushes new commit
-				    "dismiss_stale_reviews": false,
-				    # pull requests held until code owner approves
-				    "require_code_owner_reviews": true,
-				    # one reviewer required to approve pull request
-				    "required_approving_review_count": 1
-				  },
-				  # restrict who can push to branch
-				  "restrictions": {}
-				})
+             data={
+             	# required status checks to pass before merging
+		"required_status_checks": Null,
+		# enforce protections for administrators
+		"enforce_admins": True,
+		# require one approving review for pull request
+		"required_pull_request_reviews": {
+		# specify which users can dismiss pull requests
+		"dismissal_restrictions": Null,
+		# dismiss approving reviews when someone pushes new commit
+		"dismiss_stale_reviews": False,
+		# pull requests held until code owner approves
+		"require_code_owner_reviews": True,
+		# one reviewer required to approve pull request
+		"required_approving_review_count": 1
+		},
+		# restrict who can push to branch
+		"restrictions": Null
+		})
 
 @routes.post("/")
 async def main(request):
