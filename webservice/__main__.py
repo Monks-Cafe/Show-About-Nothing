@@ -20,25 +20,35 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     print(url)
     #add master branch protections
     await gh.post(url,
-             data={
+      	    data={
              	# required status checks to pass before merging
-		"required_status_checks": {},
+		"required_status_checks": {
+    		    "strict": False,
+    	     	    "contexts": []
+  		},
 		# enforce protections for administrators
 		"enforce_admins": True,
 		# require one approving review for pull request
 		"required_pull_request_reviews": {
-		# specify which users can dismiss pull requests
-		"dismissal_restrictions": {},
-		# dismiss approving reviews when someone pushes new commit
-		"dismiss_stale_reviews": False,
-		# pull requests held until code owner approves
-		"require_code_owner_reviews": True,
-		# one reviewer required to approve pull request
-		"required_approving_review_count": 1
+		    # specify which users can dismiss pull requests
+		    "dismissal_restrictions": {
+      			"users": [],
+      			"teams": []
+    		    },
+		    # dismiss approving reviews when someone pushes new commit
+		    "dismiss_stale_reviews": False,
+		    # pull requests held until code owner approves
+		    "require_code_owner_reviews": True,
+		    # one reviewer required to approve pull request
+		    "required_approving_review_count": 1
 		},
 		# restrict who can push to branch
-		"restrictions": {}
-		})
+		"restrictions": {
+    		    "users": [],
+    		    "teams": [],
+    		    "apps": []
+  		}
+	    })
 
 @routes.post("/")
 async def main(request):
