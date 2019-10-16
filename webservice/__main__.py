@@ -58,3 +58,12 @@ async def main(request):
 
     # return a "Success"
     return web.Response(status=200)
+
+if __name__ == "__main__":
+    app = web.Application()
+    app.add_routes(routes)
+    port = os.environ.get("PORT")
+    if port is not None:
+        port = int(port)
+
+    web.run_app(app, port=port)
