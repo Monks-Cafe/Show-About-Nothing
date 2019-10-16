@@ -2,12 +2,10 @@ import os
 import aiohttp
 
 from aiohttp import web
-
 from gidgethub import routing, sansio
 from gidgethub import aiohttp as gh_aiohttp
 
 routes = web.RouteTableDef()
-
 router = routing.Router()
 
 @router.register("repository", action="created")
@@ -18,6 +16,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     newrepo = event.data["repository"]["name"]
     branch = event.data["repository"]["default_branch"]
     endpoint = f'/repos/seancustodio/{newrepo}/branches/{branch}/protection'
+    print(endpoint)
     #add master branch protections
     await gh.post(endpoint,
              data={
