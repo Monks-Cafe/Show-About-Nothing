@@ -15,8 +15,8 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     # get new repository name
     url = event.data["repository"]["url"]
     branch = event.data["repository"]["default_branch"]
+    print(branch)
     full_url = f'{url}/branches/{branch}/protection'
-    print(full_url)
     accept = "application/vnd.github.luke-cage-preview+json"
     #add master branch protections
     await gh.put(full_url,
