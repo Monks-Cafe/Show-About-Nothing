@@ -54,9 +54,13 @@ In the root web service directory, you will also want to create a file named `Pr
 
 ```web: python3 -m webservice```
 
-Once logged into your Heroku account, you'll want to create a new web app from the [dashboard](https://dashboard.heroku.com/apps).  
+Once logged into your Heroku account, you'll want to create a new web app from the [dashboard](https://dashboard.heroku.com/apps):  
 
-![new heroku app](/Users/seancustodio/Desktop/heroku_new_app.gif)
+![](/Assets/heroku_new_app.gif)
+
+Then connect your Github account from the `Deploy` tab:
+
+![](/Assets/heroku_connect_github.gif)
 
 ## Creating the Webhook
 ### Authorization and Permissions
