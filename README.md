@@ -10,7 +10,6 @@
 4. [Creating the Webhook](#creating-the-webhook)
    * [Authorization and Permissions](#authorization-and-permissions)
 5. [Web Service Setup](#web-service-setup)
-   * [Create Event from Webhook](#create-event-from-webhook)
    * [Implementing Branch Protections](#implementing-branch-protections)
    * [Create Issue](#create-issue)
    * [Troubleshooting](#troubleshooting)
@@ -66,12 +65,20 @@ Next, go to the `Settings` tab and scroll down to the `Domains` section to find 
 
 ![](/Assets/heroku_app_url.gif)
 
-
+Record this URL for later steps.
 
 ## Creating the Webhook
+
+In order to know when a new repository is created, the web service will need to receive organization webhooks from Github.  This can be configured in the `Settings` option of your organization:
+
+![](/Assets/webhook.gif)
+
 ### Authorization and Permissions
+
+When creating the webhook, please note the secret token.  You will also need to ensure you select the `Repositories` trigger as we want to be notified any time a new repo is created.
+
+
 ## Web Service Setup
-### Create Event from Webhook
 ### Implementing Branch Protections
 ### Create Issue
 ### Troubleshooting
