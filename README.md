@@ -83,9 +83,9 @@ For Heroku, we will need to register both `GH_SECRET` and `GH_AUTH` variables.  
 
 ![](/Assets/personal_access_token.gif)
 
-Once you have both tokens, you need to enter both as global variables in your Heroku app settings:
+Please note you will need to choose the `repo` scope for your token.  Once you have both tokens, you need to enter both as global variables in your Heroku app settings:
 
-![](/Assets/heroku_global_vars.gif)
+![](/Assets/heroku_config_vars.gif)
 
 ## Web Service Setup
 #### Implementing Branch Protections
