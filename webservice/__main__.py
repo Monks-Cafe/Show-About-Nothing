@@ -68,7 +68,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 	f"* Number of reviewers required to approve pull request: `1`<br>"
 	f"* Restrict who can push to branch: `No`<br><br>"
 	f"***Message brought to you by Newman bot***<br>"
-	f"<details><summary></summary><br>![Image of Newman](https://media.tenor.com/images/b54ce11a318ffd1354b74ff53d0cb001/raw)</details>
+	f"<details><summary></summary><br>![Image of Newman](https://media.tenor.com/images/b54ce11a318ffd1354b74ff53d0cb001/raw)</details>"
     )
     # coroutine to create new issue
     await gh.post(issue_url,
