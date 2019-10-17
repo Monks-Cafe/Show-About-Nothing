@@ -207,7 +207,9 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 	    }, accept=accept)
 ```
 
-There are several important elements to understand from above: 
+:bangbang: The protections above are hard coded and should be updated to meet your security preferences.  
+
+There are several important parts to understand from above: 
 
 * `event` represents the web hook received from GitHub.  Information on the payload of a repository web hook event can be found [here](https://developer.github.com/v3/activity/events/types/#repositoryevent).
 * `gh` is the gidgethub API used to make API calls to GitHub.
@@ -254,7 +256,14 @@ We also want to create a new issue that automatically notifies the user of the p
               })
 ```
 
-TODO: Important parts (link to create action page, link_url, formatted markdown message, POST)
+:bangbang: The message must be updated to match the protections set previously.
+
+Some important parts to note:
+
+* `link_url` is the URL used to create a new issue.  The necessary URL is constructed from information provided in the payload of the `event`.
+* `post` is the method used to make the API call to the URL.  Here is where we write the formatted title and message we want to include in the issue.
+
+Additional details on the appropriate URL and POST method to create new issues can be found [here](https://developer.github.com/v3/issues/#create-an-issue).
 
 #### Deploying the Web Service
 
