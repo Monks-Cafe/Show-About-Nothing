@@ -46,14 +46,17 @@ aiohttp
 gidgethub
 ```
 
-In the root directory, you then create a new `webservice` directory.  In this directory, create the file `__main__.py`.  This is where you will create the web service.
+In the root directory, you then create a new `webservice` directory.  In this directory, create the file `__main__.py`.  This is where you will later create the web service.
 
 ## Heroku Setup
 
-In the root web service directory, you will also want to create a file named `Procfile`.  This file will be instruct Heroku how to run the app. In the file, add:
+In the root web service directory, you will also want to create a file named `Procfile`.  This file will instruct Heroku how to run the app. In the file, add:
 
 ```web: python3 -m webservice```
 
+Once logged into your Heroku account, you'll want to create a new web app from the [dashboard](https://dashboard.heroku.com/apps).  
+
+![new heroku app](/Users/seancustodio/Desktop/heroku_new_app.gif)
 
 ## Creating the Webhook
 ### Authorization and Permissions
