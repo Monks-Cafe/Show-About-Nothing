@@ -60,15 +60,15 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     # message formatted
     message = (
 	f"**@seancustodio**, the following protections were added to the master branch:<br><br>"
-	f"- Required status checks: `None`<br>"
-	f"- Enforce restrictions for Administrators: `Yes`<br>"
-	f"- Users that can dismiss Pull requests: `None`<br>"
-	f"- Dismiss Pull request approvals after new commit: `No`<br>"
-	f"- Require code owner review: `Yes`<br>"
-	f"- Number of reviewers required to approve pull request: `1`<br>"
-	f"- Restrict who can push to branch: `No`<br><br>"
-	f"***Message brought to you by Newman bot*** [:robot:](<br>![Image of Newman](https://media.tenor.com/images/b54ce11a318ffd1354b74ff53d0cb001/raw))"
-	
+	f"* Required status checks: `None`<br>"
+	f"* Enforce restrictions for Administrators: `Yes`<br>"
+	f"* Users that can dismiss Pull requests: `None`<br>"
+	f"* Dismiss Pull request approvals after new commit: `No`<br>"
+	f"* Require code owner review: `Yes`<br>"
+	f"* Number of reviewers required to approve pull request: `1`<br>"
+	f"* Restrict who can push to branch: `No`<br><br>"
+	f"***Message brought to you by Newman bot*** 
+	f"<details><summary>:robot:</summary><br>![Image of Newman](https://media.tenor.com/images/b54ce11a318ffd1354b74ff53d0cb001/raw)</details>"
     )
     # coroutine to create new issue
     await gh.post(issue_url,
