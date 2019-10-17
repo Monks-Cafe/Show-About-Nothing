@@ -1,11 +1,14 @@
 import os
+# asynchronous HTTP Client/Server framework (minimize process/thread wait time)
 import aiohttp
 import time
 
 from aiohttp import web
+# library to assist with making asynchronous calls to Github's API
 from gidgethub import routing, sansio
 from gidgethub import aiohttp as gh_aiohttp
 
+# routing used to keep logic separated for different event types
 routes = web.RouteTableDef()
 router = routing.Router()
 
@@ -17,13 +20,13 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     url = event.data["repository"]["url"]
     # get default branch name
     branch = event.data["repository"]["default_branch"]
-    # build url needed to add protections
+    # build url needed for PUT to add protections
     full_url = f'{url}/branches/{branch}/protection'
     # added as a temporary fix for race condition
-    time.sleep(.75)
+    time.sleep(1)
     # necessary Accept header to use API during dev preview period
     accept = "application/vnd.github.luke-cage-preview+json"
-    # add master branch protections on repo creation
+    # coroutine to add master branch protections on repo creation
     await gh.put(full_url,
       	    data={
              	# required status checks to pass before merging
@@ -59,7 +62,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     issue_url = f'{url}/issues'
     # get username
     username = event.data["sender"]["login"]
-    #nested formatted message
+    #nested formatted message for protections
     nested = (
 	f"* Required status checks:  `None`<br>"
 	f"* Enforce restrictions for Administrators: `Yes`<br>"
@@ -69,7 +72,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 	f"* Number of reviewers required to approve pull request: `1`<br>"
 	f"* Restrict who can push to branch: `No`<br>"
     )
-    # message formatted
+    # formatted message
     message = (
 	f"***Automated Branch Protections Enforced***<br><br>"
 	f"@{username}, the following protections were added to the master branch:<br>"
@@ -84,6 +87,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
                   'body': message           
               })
 
+# we are expecting a POST webhook
 @routes.post("/")
 async def main(request):
     # read the GitHub webhook payload
@@ -96,7 +100,7 @@ async def main(request):
     # a representation of GitHub webhook event
     event = sansio.Event.from_http(request.headers, body, secret=secret)
 
-    # add username
+    # add username auth
     async with aiohttp.ClientSession() as session:
         gh = gh_aiohttp.GitHubAPI(session, "seancustodio",
                                   oauth_token=oauth_token)
