@@ -21,14 +21,23 @@
 
 Locking down your repositories with the proper protections is a crucial step to ensure secure workflows are met within an organization, while still allowing for seamless and efficient collaboration.  To help make sure these rules are always set, I've created a web service in Python that listens for any new repositories created within an organization and automatically applies the protection of the master branch.  The web service then creates an issue within the repository to inform its creator of the applied protections.
 
+The general workflow for this web service is outlined below:
+
+    1. Set up the necessary accounts in GitHub and Heroku
+    2. Set up the organization web hook
+    3. Set up web service
+       - Implement automatic branch protections using GitHub API
+       - Create new issue outlining protections
+    4. Deploy web service to Heroku
+
 ## Initial Setup
 
 #### Requirements
 
-    * a Github account
-    * an organization within Github
-    * a repository for the web service (as well as new repositories to test)
-    * Heroku web server
+* a Github account
+* an organization within Github
+* a repository for the web service (as well as new repositories to test)
+* Heroku web server
 
 #### Organization
 
@@ -150,7 +159,7 @@ This will set you up to begin interacting with the GitHub web hooks and API usin
 
 #### Implementing Branch Protections
 
-In order to implement branch protections, we will need to look for when the web service receives web hook events for repository creations.  This can be done using the following:
+In order to implement branch protections, we will need to look for when the web service receives web hook events for repository creations, then write the protections using the GitHub API.  This can be done using the following coroutine:
 
 ```python
 @router.register("repository", action="created")
@@ -162,7 +171,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     # build url needed for PUT to add protections
     full_url = f'{url}/branches/{branch}/protection'
     # added as a temporary fix for race condition
-    time.sleep(.75)
+    time.sleep(1)
     # necessary Accept header to use API during dev preview period
     accept = "application/vnd.github.luke-cage-preview+json"
     # coroutine to add master branch protections on repo creation
@@ -198,7 +207,17 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 	    }, accept=accept)
 ```
 
-TODO: describe important parts (event, gh, link branch info, full_url, sleep, accept, PUT, screenshot of permissions)
+There are several important elements to understand from above: 
+
+* `event` represents the web hook received from GitHub.  Information on the payload of a repository web hook event can be found [here](https://developer.github.com/v3/activity/events/types/#repositoryevent).
+* `gh` is the gidgethub API used to make API calls to GitHub.
+* `full_url` is the URL used to update branch protections.  The necessary URL is constructed from information provided in the payload of the `event`.
+* `accept` sets the custom media type in the Accept header.  This is required as this API call is currently only available for developers to preview.
+* `put` is the method used to make the API call to the URL.  Here is where we list the protections we want to apply to the newly created master branch.
+
+Additional details on the appropriate URL, Accept header, and PUT method to update branch protections can be found [here](https://developer.github.com/v3/repos/branches/#update-branch-protection).
+
+You'll also see a `sleep` command in the coroutine.  This is used to mediate a potential race condition between writing the protections of the branch and the actual creation of the master branch.  We want to ensure that the master branch is fully created before attempting to write any protections to it.
 
 #### Create Issue
 
