@@ -11,7 +11,7 @@ router = routing.Router()
 
 @router.register("repository", action="created")
 async def RepositoryEvent(event, gh, *args, **kwargs):
-    """Whenever a repository is created, automate the protection of the master branch"""
+    """Whenever a repository is created, automate the protection of the master branch and create issue listing protections"""
 
     # get new repository name
     url = event.data["repository"]["url"]
@@ -54,8 +54,6 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     		    "apps": []
   		}
 	    }, accept=accept)
-
-"""Whenever a repository is created, create an issue listing protections added"""
 
     # url needed for POST to create issue
     issue_url = f'{url}/issues'
