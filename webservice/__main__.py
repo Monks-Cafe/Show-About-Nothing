@@ -57,17 +57,24 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 
     # url needed for POST to create issue
     issue_url = f'{url}/issues'
-    # message formatted
-    message = (
-	f"**@seancustodio**, the following protections were added to the master branch:<br><br>"
+    # get username
+    username = event.data["sender"]["login"]
+    #nested formatted message
+    nested = (
 	f"* Required status checks: `None`<br>"
 	f"* Enforce restrictions for Administrators: `Yes`<br>"
 	f"* Users that can dismiss Pull requests: `None`<br>"
 	f"* Dismiss Pull request approvals after new commit: `No`<br>"
 	f"* Require code owner review: `Yes`<br>"
 	f"* Number of reviewers required to approve pull request: `1`<br>"
-	f"* Restrict who can push to branch: `No`<br><br>"
-	f"***Message brought to you by Newman bot*** 
+	f"* Restrict who can push to branch: `No`<br>"
+    )
+    # message formatted
+    message = (
+	f"###Automated Branch Protections Enforced<br><br>"
+	f"**@{username}**, the following protections were added to the master branch:<br><br>"
+	f"<details><summary>Enforced Protections</summary><br>{nested}</details><br><br>"
+	f"***Message brought to you by Newman bot***"
 	f"<details><summary>:robot:</summary><br>![Image of Newman](https://media.tenor.com/images/b54ce11a318ffd1354b74ff53d0cb001/raw)</details>"
     )
     # coroutine to create new issue
