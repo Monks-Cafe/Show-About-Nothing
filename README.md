@@ -62,6 +62,12 @@ Then connect your Github account from the `Deploy` tab:
 
 ![](/Assets/heroku_connect_github.gif)
 
+Next, go to the `Settings` tab and scroll down to the `Domains` section to find your app URL:
+
+![](/Assets/heroku_app_url.gif)
+
+
+
 ## Creating the Webhook
 ### Authorization and Permissions
 ## Web Service Setup
