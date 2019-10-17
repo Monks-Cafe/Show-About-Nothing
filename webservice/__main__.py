@@ -57,11 +57,18 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
 
     # url needed for POST to create issue
     issue_url = f'{url}/issues'
+    # message formatted
+    message = (
+	f"**@seancustodio**, the following protections were added to the master branch:<br><br>"
+	f"* Required status checks: `None`<br>"
+	f"* Enforce restrictions for Administrators: `Yes`<br>"
+	f"* Users that can dismiss Pull requests: `None`"
+    )
     # coroutine to create new issue
     await gh.post(issue_url,
               data={
                   'title': 'New Branch Protections Added',
-                  'body': '**@seancustodio**, the following protections were added to the master branch:<br/> * Required status checks: None'           
+                  'body': message           
               })
 
 @routes.post("/")
