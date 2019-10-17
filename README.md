@@ -23,18 +23,18 @@ Locking down your repositories is a crucial step to ensure code security within 
 
 ## Initial Setup
 
-### Requirements
+#### Requirements
 
     * a Github account
     * an organization within Github
     * a repository for the web service
     * Heroku web server
 
-### Organization
+#### Organization
 
 You will need to create an organization within Github to apply protections to any new repositories.  Steps on how to create an organization can be found [here](https://help.github.com/en/articles/creating-a-new-organization-from-scratch).
 
-### Repository
+#### Repository
 
 Once you have an organization, you will need to create an initial repository for the codebase of the web service.  Steps on how to create a repository can be found [here](https://help.github.com/en/articles/creating-a-new-repository).  
 
@@ -73,14 +73,23 @@ In order to know when a new repository is created, the web service will need to 
 
 ![](/Assets/webhook.gif)
 
-### Authorization and Permissions
+Please note the secret token.  You will also need to ensure you select the `Repositories` trigger as we want to be notified any time a new repo is created.
 
-When creating the webhook, please note the secret token.  You will also need to ensure you select the `Repositories` trigger as we want to be notified any time a new repo is created.
+#### Authorization and Permissions
 
+To ensure our web service properly authenticates with Github, we need to both ensure our security tokens are entered in Heroku and verify the proper permissions are in place.
+
+For Heroku, we will need to register both `GH_SECRET` and `GH_AUTH` variables.  The `GH_SECRET` token will be the security token created in the previous step.  The `GH_AUTH` token is a `Personal Access Token` that will need to be create from your profile settings:
+
+![](/Assets/personal_access_token.gif)
+
+Once you have both tokens, you need to enter both as global variables in your Heroku app settings:
+
+![](/Assets/heroku_global_vars.gif)
 
 ## Web Service Setup
-### Implementing Branch Protections
-### Create Issue
-### Troubleshooting
+#### Implementing Branch Protections
+#### Create Issue
+#### Troubleshooting
 ## Conclusion
-### Production Improvements
+#### Production Improvements
