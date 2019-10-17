@@ -23,7 +23,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     # build url needed for PUT to add protections
     full_url = f'{url}/branches/{branch}/protection'
     # added as a temporary fix for race condition
-    time.sleep(.75)
+    time.sleep(1)
     # necessary Accept header to use API during dev preview period
     accept = "application/vnd.github.luke-cage-preview+json"
     # coroutine to add master branch protections on repo creation
