@@ -271,13 +271,13 @@ Now that `__main__.py` is complete, we can proceed to deploy the web service to 
 
 ![](/Assets/heroku_deploy.gif)
 
-Once the web service is successfully deployed, create a new repository within your organization.  You'll find a branch protection rule already made and a new issue listing the protections set:
+Once the web service is successfully deployed, create a new repository within your organization.  You'll find a branch protection rule already made and a new issue listing the protections set!
 
 ![](/Assets/final.gif)
 
 ## Conclusion
 
-TODO
+Using a web service like this is an easy addition to help ensure code base security within your organization.  This is all accomplished using a free web app service and the GitHub API.  While this is a fairly simple web service to start off with, it can easily be expanded to handle a variety of web hook events and custom GitHub API integrations. 
 
 #### Production Improvements
 
