@@ -11,15 +11,19 @@ router = routing.Router()
 
 @router.register("repository", action="created")
 async def RepositoryEvent(event, gh, *args, **kwargs):
-    """ Whenever a repository is created, automate the protection of the master branch"""
+    """Whenever a repository is created, automate the protection of the master branch and create issue listing protections"""
 
     # get new repository name
     url = event.data["repository"]["url"]
+    # get default branch name
     branch = event.data["repository"]["default_branch"]
+    # build url needed to add protections
     full_url = f'{url}/branches/{branch}/protection'
+    # added as a temporary fix for race condition
     time.sleep(.75)
+    # necessary Accept header to use API during dev preview period
     accept = "application/vnd.github.luke-cage-preview+json"
-    #add master branch protections
+    # add master branch protections on repo creation
     await gh.put(full_url,
       	    data={
              	# required status checks to pass before merging
@@ -36,7 +40,7 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
       			"users": [],
       			"teams": []
     		    },
-		    # dismiss approving reviews when someone pushes new commit
+		    # dismiss approval reviews when someone pushes new commit
 		    "dismiss_stale_reviews": False,
 		    # pull requests held until code owner approves
 		    "require_code_owner_reviews": True,
@@ -50,6 +54,35 @@ async def RepositoryEvent(event, gh, *args, **kwargs):
     		    "apps": []
   		}
 	    }, accept=accept)
+
+    # url needed for POST to create issue
+    issue_url = f'{url}/issues'
+    # get username
+    username = event.data["sender"]["login"]
+    #nested formatted message
+    nested = (
+	f"* Required status checks:  `None`<br>"
+	f"* Enforce restrictions for Administrators: `Yes`<br>"
+	f"* Users that can dismiss Pull requests: `None`<br>"
+	f"* Dismiss Pull request approvals after new commit: `No`<br>"
+	f"* Require code owner review: `Yes`<br>"
+	f"* Number of reviewers required to approve pull request: `1`<br>"
+	f"* Restrict who can push to branch: `No`<br>"
+    )
+    # message formatted
+    message = (
+	f"***Automated Branch Protections Enforced***<br><br>"
+	f"@{username}, the following protections were added to the master branch:<br>"
+	f"<details><summary>Enforced Protections</summary><br>{nested}</details>"
+	f"***Message brought to you by Newman bot***"
+	f"<details><summary>:robot:</summary><br>![Image of Newman](https://media.tenor.com/images/b54ce11a318ffd1354b74ff53d0cb001/raw)</details>"
+    )
+    # coroutine to create new issue
+    await gh.post(issue_url,
+              data={
+                  'title': 'New Branch Protections Added',
+                  'body': message           
+              })
 
 @routes.post("/")
 async def main(request):
