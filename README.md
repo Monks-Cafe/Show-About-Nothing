@@ -19,7 +19,7 @@
 
 ## Overview
 
-Locking down your repositories with the proper protections is a crucial step to ensure secure workflows are met within an organization, while still allowing for seamless and efficient collaboration.  To help make sure these rules are always set, I've created a web service in Python that listens for any new repositories created within an organization and automatically applies the protection of the master branch.  The web service then creates an issue within the repository to inform its creator of the applied protections.
+Locking down your repositories with the proper protections is a crucial step to ensure secure workflows are met within an organization, while still allowing for seamless and efficient collaboration.  To help make sure these rules are always set, I've created a web service in Python that listens for any new repositories created within an organization and automatically applies custom protections to the master branch.  The web service then creates an issue within the repository to inform its creator of the applied protections.
 
 The general workflow for this web service is outlined below:
 
@@ -70,7 +70,7 @@ Then, navigate to the `Deploy` tab where you will connect your GitHub account an
 
 ![](/Assets/heroku_connect_github.gif)
 
-Next, go to the `Settings` tab and scroll down to the `Domains` section to find your app URL:
+Next, go to the `Settings` tab and scroll down to the `Domains` section to find your app URL - record this URL for later steps:
 
 ![](/Assets/heroku_app_url.gif)
 
@@ -84,13 +84,13 @@ Web hooks can be configured in the `Settings` option of your organization:
 
 ![](/Assets/webhook.gif)
 
-Please enter a random string of characters for your secret token as it will be used to secure you web hook with Heroku.  (I typically recommend using a password manager like LastPass to store these tokens).  More information on securing your web hook can be found [here](https://developer.github.com/webhooks/securing/).  You will also need to ensure you select the `Repositories` trigger as we want to be notified any time a new repo is created.
+For the following steps, I recommend reading through GitHub’s [guide on creating a strong password](https://help.github.com/en/articles/creating-a-strong-password).  You will need to generate and enter a string of characters for your secret token, as it will be used to secure your web hook with Heroku.  More information on securing your web hook can be found [here](https://developer.github.com/webhooks/securing/).  You will also need to ensure you select the `Repositories` trigger as we want to be notified any time a new repo is created.
 
 #### Authorization and Permissions
 
-To ensure our web service properly authenticates with Github, we need to both ensure our security tokens are entered in Heroku and verify the proper permissions are in place.
+To allow our web service to properly authenticate with GitHub, we need to ensure that our security tokens are entered in Heroku, and verify that the proper permissions are in place. 
 
-For Heroku, we will need to register both `GH_SECRET` and `GH_AUTH` variables.  The `GH_SECRET` token will be the security token created in the previous step.  The `GH_AUTH` token is a `Personal Access Token` that will need to be generated from your profile settings:
+For Heroku, we will need to register both `GH_SECRET` and `GH_AUTH` variables.  The `GH_SECRET` token will be the security token created in the previous step.  The `GH_AUTH` token is a `Personal Access Token` that will need to be created from your profile settings:
 
 ![](/Assets/personal_access_token.gif)
 
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     web.run_app(app, port=port)
 ```
 
-This will set you up to begin interacting with the GitHub web hooks and API using asynchronous calls.  As a reminder, you will need to replace the `username` string with your username in the main coroutine.
+In this segment of code, you are setting up the interaction with the GitHub web hooks and GitHub’s REST API using asynchronous calls.  As a reminder, you will need to replace the `username` string with your username in the main coroutine.
 
 #### Implementing Branch Protections
 
@@ -266,6 +266,132 @@ Some important parts to note:
 Additional details on the appropriate URL and POST method to create new issues can be found [here](https://developer.github.com/v3/issues/#create-an-issue).
 
 #### Deploying the Web Service
+
+Combining all of these segments of code, your `__main__.py` should be similar to code below:
+
+```python
+import os
+# asynchronous HTTP Client/Server framework (minimize process/thread wait time)
+import aiohttp
+import time
+
+from aiohttp import web
+# library to assist with making asynchronous calls to Github's API
+from gidgethub import routing, sansio
+from gidgethub import aiohttp as gh_aiohttp
+
+# routing used to keep logic separated for different event types
+routes = web.RouteTableDef()
+router = routing.Router()
+
+@router.register("repository", action="created")
+async def RepositoryEvent(event, gh, *args, **kwargs):
+    """Whenever a repository is created, automate the protection of the master branch and create issue listing protections"""
+
+    # get new repository name
+    url = event.data["repository"]["url"]
+    # get default branch name
+    branch = event.data["repository"]["default_branch"]
+    # build url needed for PUT to add protections
+    full_url = f'{url}/branches/{branch}/protection'
+    # added as a temporary fix for race condition
+    time.sleep(1)
+    # necessary Accept header to use API during dev preview period
+    accept = "application/vnd.github.luke-cage-preview+json"
+    # coroutine to add master branch protections on repo creation
+    await gh.put(full_url,
+      	    data={
+             	# required status checks to pass before merging
+		"required_status_checks": {
+    		    "strict": False,
+    	     	    "contexts": []
+  		},
+		# enforce protections for administrators
+		"enforce_admins": True,
+		# require one approving review for pull request
+		"required_pull_request_reviews": {
+		    # specify which users can dismiss pull requests
+		    "dismissal_restrictions": {
+      			"users": [],
+      			"teams": []
+    		    },
+		    # dismiss approval reviews when someone pushes new commit
+		    "dismiss_stale_reviews": False,
+		    # pull requests held until code owner approves
+		    "require_code_owner_reviews": True,
+		    # one reviewer required to approve pull request
+		    "required_approving_review_count": 1
+		},
+		# restrict who can push to branch
+		"restrictions": {
+    		    "users": [],
+    		    "teams": [],
+    		    "apps": []
+  		}
+	    }, accept=accept)
+
+    # url needed for POST to create issue
+    issue_url = f'{url}/issues'
+    # get username
+    username = event.data["sender"]["login"]
+    #nested formatted message for protections
+    nested = (
+	f"* Required status checks:  `None`<br>"
+	f"* Enforce restrictions for Administrators: `Yes`<br>"
+	f"* Users that can dismiss Pull requests: `None`<br>"
+	f"* Dismiss Pull request approvals after new commit: `No`<br>"
+	f"* Require code owner review: `Yes`<br>"
+	f"* Number of reviewers required to approve pull request: `1`<br>"
+	f"* Restrict who can push to branch: `No`<br>"
+    )
+    # formatted message
+    message = (
+	f"***Automated Branch Protections Enforced***<br><br>"
+	f"@{username}, the following protections were added to the master branch:<br>"
+	f"<details><summary>Enforced Protections</summary><br>{nested}</details>"
+	f"***Message brought to you by Newman bot***"
+	f"<details><summary>:robot:</summary><br>![Image of Newman](https://media.tenor.com/images/b54ce11a318ffd1354b74ff53d0cb001/raw)</details>"
+    )
+    # coroutine to create new issue
+    await gh.post(issue_url,
+              data={
+                  'title': 'New Branch Protections Added',
+                  'body': message           
+              })
+
+# we are expecting a POST webhook
+@routes.post("/")
+async def main(request):
+    # read the GitHub webhook payload
+    body = await request.read()
+
+    # authentication token and secret
+    secret = os.environ.get("GH_SECRET")
+    oauth_token = os.environ.get("GH_AUTH")
+
+    # a representation of GitHub webhook event
+    event = sansio.Event.from_http(request.headers, body, secret=secret)
+
+    # add username auth
+    async with aiohttp.ClientSession() as session:
+        gh = gh_aiohttp.GitHubAPI(session, "seancustodio",
+                                  oauth_token=oauth_token)
+
+        # call the appropriate callback for the event
+        await router.dispatch(event, gh)
+
+    # return a "Success"
+    return web.Response(status=200)
+
+if __name__ == "__main__":
+    app = web.Application()
+    app.add_routes(routes)
+    port = os.environ.get("PORT")
+    if port is not None:
+        port = int(port)
+
+    web.run_app(app, port=port)
+````
 
 Now that `__main__.py` is complete, we can proceed to deploy the web service to Heroku.  On the bottom of the `Deploy` tab in Heroku, you'll find the `Manual Deploy` section.  From here, you'll be able to choose the appropriate branch to deploy:
 
